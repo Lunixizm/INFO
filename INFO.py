@@ -189,10 +189,20 @@ Get-WmiObject -Class Win32_Processor | Out-File -FilePath $outputFile -Append
 
 """
 
-# Run the PowerShell script
-def run_powershell_script(script):
-    command = ["powershell", "-Command", script]
-    subprocess.run(command, check=True)
+# CREATE_NO_WINDOW sabitini tanımlayın
+CREATE_NO_WINDOW = 0x08000000
 
-# Execute the PowerShell script
+def run_powershell_script(script):
+    # Startupinfo nesnesini oluşturun
+    startupinfo = subprocess.STARTUPINFO()
+    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    startupinfo.wShowWindow = subprocess.SW_HIDE
+    
+    # PowerShell script komutunu ayarlayın
+    command = ["powershell", "-Command", script]
+    
+    # Komutu çalıştırın
+    subprocess.run(command, startupinfo=startupinfo, creationflags=CREATE_NO_WINDOW, check=True)
+
+# Çalıştırmak istediğiniz PowerShell script'ini buraya yazın
 run_powershell_script(ps_script)
