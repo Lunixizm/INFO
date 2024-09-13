@@ -89,11 +89,31 @@ if (-not (Test-Path $outputFile)) { New-Item -Path $outputFile -ItemType File -F
 "=== HARDWARE INFORMATION ===" | Out-File -FilePath $outputFile
 Get-WmiObject -Class Win32_ComputerSystem | Out-File -FilePath $outputFile -Append
 
-# Browsers and Addons
-$outputFile = "C:\\Temp\\browsers_addons.txt"
+# Browser Information (General)
+$outputFile = "C:\\Temp\\browser_info.txt"
 if (-not (Test-Path $outputFile)) { New-Item -Path $outputFile -ItemType File -Force }
-"=== INSTALLED BROWSERS AND ADDONS ===" | Out-File -FilePath $outputFile
-Get-WmiObject -Class Win32_BrowserHelperObject | Out-File -FilePath $outputFile -Append
+"=== BROWSER INFORMATION (GENERAL) ===" | Out-File -FilePath $outputFile
+
+try {
+    Get-CimInstance -ClassName Win32_ComputerSystem | Out-File -FilePath $outputFile -Append
+}
+catch {
+    "Error retrieving computer system information: $_" | Out-File -FilePath $outputFile -Append
+}
+
+$outputFile = "C:\\Temp\\chrome_addons.txt"
+if (-not (Test-Path $outputFile)) { New-Item -Path $outputFile -ItemType File -Force }
+"=== GOOGLE CHROME ADDONS ===" | Out-File -FilePath $outputFile
+
+$chromeExtensionsPath = "HKCU:\\Software\\Google\\Chrome\\Extensions\\"
+Get-ItemProperty -Path $chromeExtensionsPath | Out-File -FilePath $outputFile -Append
+
+$outputFile = "C:\\Temp\\firefox_addons.txt"
+if (-not (Test-Path $outputFile)) { New-Item -Path $outputFile -ItemType File -Force }
+"=== MOZILLA FIREFOX ADDONS ===" | Out-File -FilePath $outputFile
+
+$firefoxProfilePath = "$env:APPDATA\\Mozilla\\Firefox\\Profiles\\"
+Get-ChildItem -Path $firefoxProfilePath -Recurse | Out-File -FilePath $outputFile -Append
 
 # Scheduled Tasks
 $outputFile = "C:\\Temp\\scheduled_tasks.txt"
